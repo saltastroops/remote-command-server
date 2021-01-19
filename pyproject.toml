@@ -6,6 +6,8 @@ authors = ["Christian Hettlage <hettlage@saao.ac.za>"]
 
 [tool.poetry.dependencies]
 python = "^3.6"
+fastapi = {extras = ["all"], version = "^0.63.0"}
+uvicorn = {extras = ["standard"], version = "^0.13.3"}
 
 [tool.poetry.dev-dependencies]
 pytest = "^6.2.1"
