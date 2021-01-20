@@ -3,8 +3,8 @@ import pytest
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
-from saao_deployment_server import models, schemas
-from saao_deployment_server.crud import (
+from remote_command_server import models, schemas
+from remote_command_server.crud import (
     create_project,
     create_token,
     verify_token,
@@ -20,7 +20,7 @@ def test_create_project_adds_a_project(db: Session) -> None:
 
     # create a project
     project = schemas.ProjectCreate(
-        name="My Project", directory="/wherever", deploy_command="whatever"
+        name="My Project", directory="/wherever", command="whatever"
     )
     create_project(db, project)
 
@@ -30,7 +30,7 @@ def test_create_project_adds_a_project(db: Session) -> None:
     # ... and it has the correct content
     db_project = db.query(models.Project).first()
     assert db_project.id is not None
-    assert db_project.deploy_command == project.deploy_command
+    assert db_project.command == project.command
     assert db_project.directory == project.directory
     assert db_project.name == project.name
 
@@ -43,14 +43,14 @@ def test_create_project_returns_added_project(db: Session) -> None:
 
     # create a project
     project = schemas.ProjectCreate(
-        name="My Project", directory="/wherever", deploy_command="whatever"
+        name="My Project", directory="/wherever", command="whatever"
     )
     created_project = create_project(db, project)
 
     # the return value and the database content are consistent
     db_project = db.query(models.Project).first()
     assert created_project.id == db_project.id
-    assert created_project.deploy_command == project.deploy_command
+    assert created_project.command == project.command
     assert created_project.directory == project.directory
     assert db_project.name == project.name
 
@@ -62,7 +62,7 @@ def test_no_duplicate_projects(db: Session) -> None:
     create_project(
         db,
         schemas.ProjectCreate(
-            name="My Project", directory="/wherever", deploy_command="whatever"
+            name="My Project", directory="/wherever", command="whatever"
         ),
     )
 
@@ -73,7 +73,7 @@ def test_no_duplicate_projects(db: Session) -> None:
             schemas.ProjectCreate(
                 name="My Project",
                 directory="/somewhere_else",
-                deploy_command="something_else",
+                command="something_else",
             ),
         )
 
@@ -85,7 +85,7 @@ def test_create_token_adds_a_token(db: Session) -> None:
     create_project(
         db,
         schemas.ProjectCreate(
-            name="My Project", directory="/wherever", deploy_command="whatever"
+            name="My Project", directory="/wherever", command="whatever"
         ),
     )
 
@@ -112,7 +112,7 @@ def test_create_token_returns_added_token(db: Session) -> None:
     create_project(
         db,
         schemas.ProjectCreate(
-            name="My Project", directory="/wherever", deploy_command="whatever"
+            name="My Project", directory="/wherever", command="whatever"
         ),
     )
 
@@ -134,7 +134,7 @@ def tests_no_token_created_for_non_existing_project(db: Session) -> None:
     create_project(
         db,
         schemas.ProjectCreate(
-            name="My Project", directory="/wherever", deploy_command="whatever"
+            name="My Project", directory="/wherever", command="whatever"
         ),
     )
 
@@ -151,7 +151,7 @@ def test_verify_token_with_valid_token(db: Session) -> None:
     create_project(
         db,
         schemas.ProjectCreate(
-            name="Some Project", directory="/wherever", deploy_command="whatever"
+            name="Some Project", directory="/wherever", command="whatever"
         ),
     )
     token = create_token(db, project_name="Some Project")
@@ -167,7 +167,7 @@ def test_verify_token_with_non_existing_token(db: Session) -> None:
     create_project(
         db,
         schemas.ProjectCreate(
-            name="Some Project", directory="/wherever", deploy_command="whatever"
+            name="Some Project", directory="/wherever", command="whatever"
         ),
     )
     token = create_token(db, project_name="Some Project")
@@ -183,7 +183,7 @@ def test_verify_token_with_non_existing_project(db: Session) -> None:
     create_project(
         db,
         schemas.ProjectCreate(
-            name="Some Project", directory="/wherever", deploy_command="whatever"
+            name="Some Project", directory="/wherever", command="whatever"
         ),
     )
     token = create_token(db, project_name="Some Project")
@@ -197,13 +197,13 @@ def test_verify_token_for_wrong_project(db: Session) -> None:
     create_project(
         db,
         schemas.ProjectCreate(
-            name="Some Project", directory="/wherever", deploy_command="whatever"
+            name="Some Project", directory="/wherever", command="whatever"
         ),
     )
     create_project(
         db,
         schemas.ProjectCreate(
-            name="Other Project", directory="/wherever", deploy_command="whatever"
+            name="Other Project", directory="/wherever", command="whatever"
         ),
     )
     token = create_token(db, project_name="Some Project")

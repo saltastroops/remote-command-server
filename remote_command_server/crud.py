@@ -4,7 +4,7 @@ from typing import cast
 
 from sqlalchemy.orm import Session
 
-from saao_deployment_server import models, schemas
+from remote_command_server import models, schemas
 
 
 def create_project(db: Session, project: schemas.ProjectCreate) -> models.Project:

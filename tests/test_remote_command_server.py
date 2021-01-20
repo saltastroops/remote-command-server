@@ -3,7 +3,7 @@ from typing import Any
 import pytest
 from fastapi.testclient import TestClient
 
-from saao_deployment_server.main import app
+from remote_command_server.main import app
 
 client = TestClient(app)
 

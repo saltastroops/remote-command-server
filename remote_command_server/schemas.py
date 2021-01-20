@@ -11,7 +11,7 @@ class ProjectBase(BaseModel):
 
     name: str
     directory: str
-    deploy_command: str
+    command: str
 
 
 class ProjectCreate(ProjectBase):

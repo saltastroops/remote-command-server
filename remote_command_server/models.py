@@ -4,7 +4,7 @@
 from sqlalchemy import Column, ForeignKey, Integer, String
 from sqlalchemy.orm import relationship
 
-from saao_deployment_server.database import Base
+from remote_command_server.database import Base
 
 
 class Project(Base):
@@ -13,7 +13,7 @@ class Project(Base):
     __tablename__ = "projects"
 
     id = Column(Integer, primary_key=True, index=True)
-    deploy_command = Column(String, nullable=False)
+    command = Column(String, nullable=False)
     directory = Column(String, nullable=False)
     name = Column(String, nullable=False, unique=True, index=True)
 

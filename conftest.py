@@ -4,7 +4,7 @@ from typing import Generator
 import pytest
 from sqlalchemy.orm import Session
 
-from saao_deployment_server.database import database_connection, Base
+from remote_command_server.database import database_connection, Base
 
 
 @pytest.fixture()
