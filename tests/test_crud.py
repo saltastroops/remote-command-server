@@ -1,9 +1,10 @@
 """Tests for database operations."""
+import pytest
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from saao_deployment_server import models, schemas
-from saao_deployment_server.crud import create_project
-from saao_deployment_server.database import Base, database_connection
+from saao_deployment_server.crud import create_project, create_token
 
 
 def test_create_project_adds_a_project(db: Session) -> None:
@@ -29,15 +30,10 @@ def test_create_project_adds_a_project(db: Session) -> None:
     assert db_project.name == project.name
 
 
-def test_create_project_returns_added_project() -> None:
-    """create_project adds a project to the database."""
-    db_connection = database_connection("sqlite://")
-    Base.metadata.create_all(bind=db_connection.engine)
-
-    db = db_connection.LocalSession()
+def test_create_project_returns_added_project(db: Session) -> None:
+    """create_project return the project added to the database."""
 
     # there is no project to start with
-    print(type(Base))
     assert db.query(models.Project).count() == 0
 
     # create a project
@@ -52,3 +48,94 @@ def test_create_project_returns_added_project() -> None:
     assert created_project.deploy_command == project.deploy_command
     assert created_project.directory == project.directory
     assert db_project.name == project.name
+
+
+def test_no_duplicate_projects(db: Session) -> None:
+    """A project name may exist only once."""
+
+    # create a project
+    create_project(
+        db,
+        schemas.ProjectCreate(
+            name="My Project", directory="/wherever", deploy_command="whatever"
+        ),
+    )
+
+    # try to create another project with the same name
+    with pytest.raises(IntegrityError):
+        create_project(
+            db,
+            schemas.ProjectCreate(
+                name="My Project",
+                directory="/somewhere_else",
+                deploy_command="something_else",
+            ),
+        )
+
+
+def test_create_token_adds_a_token(db: Session) -> None:
+    """create_token adds a token to the database"""
+
+    # create a project
+    create_project(
+        db,
+        schemas.ProjectCreate(
+            name="My Project", directory="/wherever", deploy_command="whatever"
+        ),
+    )
+
+    # there is no token to start with
+    assert db.query(models.Token).count() == 0
+
+    # add a token
+    create_token(db, project_name="My Project")
+
+    # there is a token now...
+    assert db.query(models.Token).count() == 1
+
+    # ... and it has the correct content
+    db_token = db.query(models.Token).first()
+    assert db_token.id is not None
+    assert db_token.hashed_token is not None
+    assert db_token.project.name == "My Project"
+
+
+def test_create_token_returns_added_token(db: Session) -> None:
+    """create_token returns the token added ton the database."""
+
+    # create a project
+    create_project(
+        db,
+        schemas.ProjectCreate(
+            name="My Project", directory="/wherever", deploy_command="whatever"
+        ),
+    )
+
+    # there is no token to start with
+    assert db.query(models.Token).count() == 0
+
+    # add a token
+    created_token = create_token(db, project_name="My Project")
+
+    # the return value and the database content are consistent
+    db_token = db.query(models.Token).first()
+    assert created_token.id == db_token.id
+    assert created_token.hashed_token == db_token.hashed_token
+    assert created_token.project.name == db_token.project.name
+
+
+def tests_no_token_created_for_non_existing_project(db: Session) -> None:
+    """No token is created for a project which does not exist."""
+
+    # create a project
+    create_project(
+        db,
+        schemas.ProjectCreate(
+            name="My Project", directory="/wherever", deploy_command="whatever"
+        ),
+    )
+
+    # try to add a token for another project
+    with pytest.raises(ValueError) as excinfo:
+        create_token(db, "Another Project")
+    assert "project" in str(excinfo).lower()

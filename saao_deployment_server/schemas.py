@@ -30,22 +30,12 @@ class Project(ProjectBase):
         orm_mode = True
 
 
-class TokenBase(BaseModel):
-    """Base model for token models."""
-
-    hashed_token: str
-
-
-class TokenCreate(TokenBase):
-    """Model for creating a token."""
-
-    project_name: str
-
-
-class Token(TokenBase):
+class Token(BaseModel):
     """Model for a token."""
 
     id: int
+    hashed_token: str
+    project: "Project"
 
     class Config:
         orm_mode = True
