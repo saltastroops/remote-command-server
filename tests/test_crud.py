@@ -4,7 +4,12 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from saao_deployment_server import models, schemas
-from saao_deployment_server.crud import create_project, create_token
+from saao_deployment_server.crud import (
+    create_project,
+    create_token,
+    verify_token,
+    hash_token,
+)
 
 
 def test_create_project_adds_a_project(db: Session) -> None:
@@ -88,7 +93,7 @@ def test_create_token_adds_a_token(db: Session) -> None:
     assert db.query(models.Token).count() == 0
 
     # add a token
-    create_token(db, project_name="My Project")
+    created_token = create_token(db, project_name="My Project")
 
     # there is a token now...
     assert db.query(models.Token).count() == 1
@@ -96,7 +101,7 @@ def test_create_token_adds_a_token(db: Session) -> None:
     # ... and it has the correct content
     db_token = db.query(models.Token).first()
     assert db_token.id is not None
-    assert db_token.hashed_token is not None
+    assert db_token.hashed_token == hash_token(created_token)
     assert db_token.project.name == "My Project"
 
 
@@ -119,9 +124,7 @@ def test_create_token_returns_added_token(db: Session) -> None:
 
     # the return value and the database content are consistent
     db_token = db.query(models.Token).first()
-    assert created_token.id == db_token.id
-    assert created_token.hashed_token == db_token.hashed_token
-    assert created_token.project.name == db_token.project.name
+    assert hash_token(created_token) == db_token.hashed_token
 
 
 def tests_no_token_created_for_non_existing_project(db: Session) -> None:
@@ -139,3 +142,71 @@ def tests_no_token_created_for_non_existing_project(db: Session) -> None:
     with pytest.raises(ValueError) as excinfo:
         create_token(db, "Another Project")
     assert "project" in str(excinfo).lower()
+
+
+def test_verify_token_with_valid_token(db: Session) -> None:
+    """A valid token can be verified."""
+
+    # create a project and a token
+    create_project(
+        db,
+        schemas.ProjectCreate(
+            name="Some Project", directory="/wherever", deploy_command="whatever"
+        ),
+    )
+    token = create_token(db, project_name="Some Project")
+
+    # verify the token
+    assert verify_token(db, token=token, project_name="Some Project")
+
+
+def test_verify_token_with_non_existing_token(db: Session) -> None:
+    """A non-existing token cannot be verified."""
+
+    # create a project and a token
+    create_project(
+        db,
+        schemas.ProjectCreate(
+            name="Some Project", directory="/wherever", deploy_command="whatever"
+        ),
+    )
+    token = create_token(db, project_name="Some Project")
+
+    # try to verify another token value
+    assert not verify_token(db, token=token + "1234", project_name="Some Project")
+
+
+def test_verify_token_with_non_existing_project(db: Session) -> None:
+    """A token cannot be verified for a non-existing project."""
+
+    # create a project and a token
+    create_project(
+        db,
+        schemas.ProjectCreate(
+            name="Some Project", directory="/wherever", deploy_command="whatever"
+        ),
+    )
+    token = create_token(db, project_name="Some Project")
+
+    # try to verify the token for another project
+    assert not verify_token(db, token=token, project_name="Other Project")
+
+
+def test_verify_token_for_wrong_project(db: Session) -> None:
+    # create two projects and one token
+    create_project(
+        db,
+        schemas.ProjectCreate(
+            name="Some Project", directory="/wherever", deploy_command="whatever"
+        ),
+    )
+    create_project(
+        db,
+        schemas.ProjectCreate(
+            name="Other Project", directory="/wherever", deploy_command="whatever"
+        ),
+    )
+    token = create_token(db, project_name="Some Project")
+
+    # try to verify the token for the wrong project
+    assert not verify_token(db, token=token, project_name="Other Project")
