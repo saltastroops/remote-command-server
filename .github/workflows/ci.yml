@@ -23,5 +23,5 @@ jobs:
             ${{ runner.os }}-poetry-
       - name: Run tests
         run: |
-          poetry run rcs
-          poetry run tox
+          poetry install
+          poetry run tox -e py
