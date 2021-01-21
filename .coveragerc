@@ -1,0 +1,3 @@
+[run]
+    # ignore hidden files and directories (such as a virtual environment folder)
+    omit = .*
