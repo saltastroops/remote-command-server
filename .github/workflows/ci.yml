@@ -25,3 +25,7 @@ jobs:
         run: |
           poetry install
           poetry run tox -e py
+      - name: Creeate code coverage report
+        run: poetry run pytest --cov=./
+      - name: Upload code coverage report
+        uses: 
