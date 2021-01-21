@@ -7,8 +7,8 @@ from remote_command_server import models, schemas
 from remote_command_server.crud import (
     create_project,
     create_token,
-    verify_token,
     hash_token,
+    verify_token,
 )
 
 
