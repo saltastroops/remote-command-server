@@ -22,4 +22,6 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-poetry-
       - name: Run tests
-        run: poetry run tox -e py
+        run: |
+          poetry run rcs
+          poetry run tox
