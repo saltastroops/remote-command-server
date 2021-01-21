@@ -6,11 +6,14 @@ jobs:
   build:
     name: Build the project
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python_version: ["3.7", "3.8", "3.9"]
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-python@v1
         with:
-          python-version: 3.7
+          python-version: ${{ matrix.python_version }}
       - uses: Gr1N/setup-poetry@v4
       - uses: actions/cache@v1
         with:
@@ -19,4 +22,4 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-poetry-
       - name: Run tests
-        run: tox -e py
+        run: poetry run tox -e py
