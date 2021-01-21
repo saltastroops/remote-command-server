@@ -18,4 +18,5 @@ jobs:
           key: ${{ runner.os }}-poetry-${{ hashFiles('poetry.lock') }}
           restore-keys: |
             ${{ runner.os }}-poetry-
-      - run: poetry --version
+      - name: Run tests
+        run: tox -e py

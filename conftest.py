@@ -5,7 +5,7 @@ from typing import Generator, Optional, Tuple
 import pytest
 from sqlalchemy.orm import Session
 
-from remote_command_server.database import database_connection, Base
+from remote_command_server.database import Base, database_connection
 
 
 @pytest.fixture()
@@ -18,7 +18,7 @@ def db() -> Generator[Session, None, None]:
 
     db: Optional[Session] = None
     try:
-        db_connection = database_connection('sqlite:///:memory:')
+        db_connection = database_connection("sqlite:///:memory:")
         Base.metadata.create_all(bind=db_connection.engine)
         db = db_connection.LocalSession()
         yield db
@@ -28,7 +28,9 @@ def db() -> Generator[Session, None, None]:
 
 
 @pytest.fixture()
-def file_based_db(tmp_path: pathlib.Path) -> Generator[Tuple[Session, pathlib.Path], None, None]:
+def file_based_db(
+    tmp_path: pathlib.Path,
+) -> Generator[Tuple[Session, pathlib.Path], None, None]:
     """
     Fixture for creating a fresh test database in a temporary file.
 
