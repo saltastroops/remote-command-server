@@ -25,13 +25,9 @@ jobs:
         run: |
           poetry install
           poetry run tox -e py
-
-  code-coverage:
-    name: Create and upload code coverage report
-    runs-on: ubuntu-latest
-    needs: build
-    steps:
-      - name: Creeate code coverage report
+      - name: Create code coverage report
+        if: matrix.python_version == '3.7'
         run: poetry run pytest --cov=./
       - name: Upload code coverage report
+        if: matrix.python_version == '3.7'
         uses: codecov/codecov-action@v1
