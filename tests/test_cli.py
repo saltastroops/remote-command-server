@@ -122,7 +122,6 @@ def test_project_database_file_must_exist(tmp_path: pathlib.Path) -> None:
     )
 
     # check this has failed
-    print(result.output)
     assert result.exit_code != 0
     assert "exist" in result.output.lower()
 
@@ -292,7 +291,6 @@ def test_initdb_creates_database_file(tmp_path: pathlib.Path) -> None:
     db_file = tmp_path / "test.sqlite"
     runner = CliRunner()
     result = runner.invoke(cli, ["initdb", str(db_file)])
-    print(result.output)
     assert result.exit_code == 0
 
     # check that a project and token can be created in the new database file

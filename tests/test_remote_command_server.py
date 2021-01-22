@@ -27,5 +27,4 @@ def test_route_not_found() -> None:
 def test_invalid_request_body(body: Any) -> None:
     """Invalid request bodies lead to a 422 error."""
     response = client.post("/deploy", json=body)
-    print(response.text)
     assert response.status_code == 422
