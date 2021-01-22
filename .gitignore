@@ -128,5 +128,6 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
-# pyenv
-.python-version
+# IntelliJ
+*.iml
+.idea
