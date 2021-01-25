@@ -1,0 +1,12 @@
+site_name: Remote Control Server
+
+theme: material
+
+markdown_extensions:
+  - admonition
+
+nav:
+  - Remote Control Server: index.md
+  - Quickstart Guide: quickstart.md
+  - An Example: example.md
+  - API: http://127.0.0.1:8080/docs

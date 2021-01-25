@@ -8,7 +8,7 @@ from remote_command_server.database import Base
 
 
 class Project(Base):
-    """A project to deploy."""
+    """A project with a command to run in a directory."""
 
     __tablename__ = "projects"
 

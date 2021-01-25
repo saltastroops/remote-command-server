@@ -21,9 +21,7 @@ def cli() -> None:
     "-c",
     type=str,
     required=True,
-    help="Shell command to execute for deployment. If changes need to be pulled from "
-    "somewhere (such as a repository), this must be explicitly included in the "
-    "command.",
+    help="Shell command to run.",
 )
 @click.option(
     "--database",
@@ -38,9 +36,9 @@ def cli() -> None:
     "-d",
     type=click.Path(exists=True, dir_okay=True, resolve_path=True),
     required=True,
-    help="Directory in which to execute the deployment command. This directory must "
-    "exist. Relative paths are converted into absolute paths, and symlinks are "
-    "resolved. A tilde prefix is not resolved.",
+    help="Directory in which to run the command. This directory must exist. "
+    "Relative paths are converted into absolute paths, and symlinks are resolved. "
+    "A tilde prefix is not resolved.",
 )
 @click.option("--name", "-n", type=str, required=True, help="Project name.")
 def project(command: str, database: str, directory: str, name: str) -> None:
