@@ -75,9 +75,10 @@ We can now create our database, the two projects and tokens for them.
 # in the root folder of the server code
 poetry shell
 rcs initdb commands.sqlite3
-rcs project -n list-docker-containers -d /tmp -c "sudo /path/to/list-containers.sh" --db sqlite:///./commands.sqlite3
-rcs project -n list-docker-images -d /tmp -c "sudo /path/to/list-images.sh" --db sqlite:///./commands.sqlite3
-rcs token -p list-docker-containers --db sqlite:///./commands.sqlite3
+rcs project -n list-docker-containers -d /tmp -c "sudo /path/to/list-containers.sh" --db commands.sqlite3
+rcs project -n list-docker-images -d /tmp -c "sudo /path/to/list-images.sh" --db commands.sqlite3
+rcs token -p list-docker-containers --db commands.sqlite3
+rcs token -p list-docker-images --db commands.sqlite3
 ```
 
 Note the `sudo` in the commands, and remember to replace `/path/to` with the correct path.
@@ -85,7 +86,7 @@ Note the `sudo` in the commands, and remember to replace `/path/to` with the cor
 With all this in place we can finally launch the server.
 
 ```shell
-SQL_ALCHEMY_DATABASE_URL=commands.sqlite3 uvicorn remote_command_server.main:app
+SQL_ALCHEMY_DATABASE_URL=sqlite:///./commands.sqlite3 uvicorn remote_command_server.main:app
 ```
 
 ## Running the commands
