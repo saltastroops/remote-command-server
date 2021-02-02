@@ -39,3 +39,9 @@ class Token(BaseModel):
 
     class Config:
         orm_mode = True
+
+
+class Message(BaseModel):
+    """Model for a message."""
+
+    message: str

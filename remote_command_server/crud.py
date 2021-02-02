@@ -46,7 +46,7 @@ def create_token(db: Session, project_name: str) -> str:
 
 def verify_token(db: Session, token: str, project_name: str) -> bool:
     """
-    Verify whether a token grants permission to deploy a project.
+    Verify whether a token grants permission to execute a project.
     """
 
     # get the project
